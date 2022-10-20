@@ -34,17 +34,19 @@ public class Server {
     private void connect(Socket socket) {
         try (final var in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              final var out = new BufferedOutputStream(socket.getOutputStream())) {
-            // read only request line for simplicity
-            // must be in form GET /path HTTP/1.1
             final var requestLine = in.readLine();
             final var parts = requestLine.split(" ");
 
-            // just close socket
             if (parts.length != 3) {
                 return;
             }
 
-            final var path = parts[1];
+            final var pathAndQuery = parts[1];
+            var parsParam = Request.getQueryParam(pathAndQuery);
+            var path = Request.getQueryPath(pathAndQuery);
+            System.out.println(parsParam);
+            System.out.println(path);
+
             if (!validPaths.contains(path)) {
                 out.write((
                         "HTTP/1.1 404 Not Found\r\n" +
